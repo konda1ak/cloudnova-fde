@@ -1,0 +1,2 @@
+# AI build instructions
+Read data/BUSINESS_CONTEXT.md and specs before coding. Implement specs/model.md exactly; report deviations. Prefer standard library and narrow tested scope. Never sum invoice-level MRR as account MRR. Use Decimal for currency, retain lineage, reject unsupported questions. No arbitrary user SQL. Run evals and document assumptions without invented business facts or session history.

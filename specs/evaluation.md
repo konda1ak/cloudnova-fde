@@ -1,0 +1,2 @@
+# Evaluation spec
+Use small hand-calculated fixture independent of production dataset totals. Assert paid 2024 revenue, net revenue, refund magnitude, FX, active account MRR with annual pricing, account-grain churn, top-account low CSAT, exposure, alias/date/boolean parsing, duplicate winner and audit, quarantine, and read-only guard. Include unsupported predictive question as expected failure (abstention, not invented answer). Run full dataset integration and commit observed report separately. No claim that fixture validates every possible finance ambiguity.
