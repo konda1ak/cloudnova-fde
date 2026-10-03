@@ -1,0 +1,10 @@
+{
+  "input_rows": 5125,
+  "clean_invoices": 5000,
+  "accounts": 3815,
+  "duplicates_removed": 123,
+  "quarantined": 2,
+  "flagged_invoices": 1289,
+  "accounts_with_conflicting_attributes": 977,
+  "source_sha256": "f542bc1f8193ab367e0a009a7afe56620335ce23b5817f5edc0ed4f896c89d84"
+}

@@ -1,0 +1,18 @@
+test_active_regional_mrr_annual_not_divided (test_system.LedgerEvaluation.test_active_regional_mrr_annual_not_divided) ... ok
+test_churn_account_grain (test_system.LedgerEvaluation.test_churn_account_grain) ... ok
+test_dates_discounts_signs (test_system.LedgerEvaluation.test_dates_discounts_signs) ... ok
+test_dedup_quarantine_lineage (test_system.LedgerEvaluation.test_dedup_quarantine_lineage) ... ok
+test_expected_failure_predictive_churn (test_system.LedgerEvaluation.test_expected_failure_predictive_churn) ... expected failure
+test_exposure_fx (test_system.LedgerEvaluation.test_exposure_fx) ... ok
+test_net_revenue (test_system.LedgerEvaluation.test_net_revenue) ... ok
+test_no_ignored_filters (test_system.LedgerEvaluation.test_no_ignored_filters) ... ok
+test_paid_revenue_2024 (test_system.LedgerEvaluation.test_paid_revenue_2024) ... ok
+test_read_only (test_system.LedgerEvaluation.test_read_only) ... ok
+test_refund_duplicate_priority (test_system.LedgerEvaluation.test_refund_duplicate_priority) ... ok
+test_refunds (test_system.LedgerEvaluation.test_refunds) ... ok
+test_top_accounts_low_csat (test_system.LedgerEvaluation.test_top_accounts_low_csat) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.035s
+
+OK (expected failures=1)
