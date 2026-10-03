@@ -70,4 +70,8 @@ def ask(db, question):
         result=[dict(r) for r in con.execute(sql,params).fetchmany(100)]
         ids=[r[0] for r in con.execute(lineage,params)]
         report=json.loads(con.execute('SELECT report FROM metadata').fetchone()[0])
-    return {'question':question,'intent':intent,'sql':sql,'parameters':params,'answer':result,'provenance':{'source_sha256':report['source_sha256'],'contributing_records':len(ids),'sample_csv_rows':ids[:10],'note':'Samples are not exhaustive; run the lineage SQL for every contributing CSV row.'},'lineage_sql':lineage,'assumptions':'Fixed FX; deterministic dedup; latest-invoice account snapshot. See specs/model.md.'}
+        snapshot_rows=[]
+        if intent=='top_accounts' and result:
+            account_ids=[r['account_id'] for r in result]
+            snapshot_rows=[dict(r) for r in con.execute('SELECT account_id, source_row, attribute_conflict FROM accounts WHERE account_id IN ('+','.join('?' for _ in account_ids)+')',account_ids)]
+    return {'question':question,'intent':intent,'sql':sql,'parameters':params,'answer':result,'provenance':{'source_sha256':report['source_sha256'],'contributing_records':len(ids),'sample_csv_rows':ids[:10],'account_snapshot_rows':snapshot_rows,'note':'Samples are not exhaustive; run the lineage SQL for every contributing CSV row.'},'lineage_sql':lineage,'assumptions':'Fixed FX; deterministic dedup; latest-invoice account snapshot. See specs/model.md.'}

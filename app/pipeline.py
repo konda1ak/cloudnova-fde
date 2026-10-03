@@ -57,9 +57,15 @@ def build(csv_path, db_path):
     csv_path=Path(csv_path);db_path=Path(db_path);db_path.parent.mkdir(parents=True,exist_ok=True)
     winners={}; seen=set(); audit=[]; rejected=[]; total=0
     with csv_path.open(newline='',encoding='utf-8-sig') as f:
-        for n,raw in enumerate(csv.DictReader(f),2):
+        reader=csv.DictReader(f)
+        required={'invoice_id','account_id','account_name','contact_email','region','industry','plan','billing_cycle','seats','currency','amount','discount_pct','status','payment_method','signup_date','invoice_date','churned','csat_score','support_tickets'}
+        if not reader.fieldnames or len(reader.fieldnames)!=len(set(reader.fieldnames)) or set(reader.fieldnames)!=required:
+            raise ValueError('CSV header must contain exactly the documented 19 unique columns')
+        for n,raw in enumerate(reader,2):
             total+=1
-            try: r=clean(raw,n)
+            try:
+                if None in raw or any(v is None for v in raw.values()):raise ValueError('wrong CSV field count')
+                r=clean(raw,n)
             except (ValueError,KeyError,TypeError,ArithmeticError) as e:
                 rejected.append({'source_row':n,'reason':str(e),'raw':raw});continue
             fingerprint=tuple(raw.items()); old=winners.get(r['invoice_id'])
@@ -81,7 +87,9 @@ def build(csv_path, db_path):
     con.executemany('INSERT INTO invoices VALUES ('+','.join('?' for _ in cols)+')',[[r[k] for k in cols] for r in rows])
     con.executescript('''CREATE TABLE accounts AS SELECT * FROM (SELECT *, ROW_NUMBER() OVER(PARTITION BY account_id ORDER BY invoice_date DESC, invoice_id DESC) AS rn FROM invoices) WHERE rn=1;
     CREATE UNIQUE INDEX account_key ON accounts(account_id);
-    CREATE INDEX invoice_account ON invoices(account_id);''')
+    CREATE INDEX invoice_account ON invoices(account_id);
+    ALTER TABLE accounts ADD COLUMN attribute_conflict INTEGER DEFAULT 0;
+    UPDATE accounts SET attribute_conflict=1 WHERE account_id IN (SELECT account_id FROM invoices GROUP BY account_id HAVING count(DISTINCT plan)>1 OR count(DISTINCT region)>1 OR count(DISTINCT churned)>1 OR count(DISTINCT seats)>1 OR count(DISTINCT discount_pct)>1);''')
     disagreements=con.execute("SELECT count(*) FROM (SELECT account_id FROM invoices GROUP BY account_id HAVING count(DISTINCT plan)>1 OR count(DISTINCT region)>1 OR count(DISTINCT churned)>1 OR count(DISTINCT seats)>1 OR count(DISTINCT discount_pct)>1)").fetchone()[0]
     report={'input_rows':total,'clean_invoices':len(rows),'accounts':con.execute('SELECT count(*) FROM accounts').fetchone()[0],'duplicates_removed':len(audit),'quarantined':len(rejected),'flagged_invoices':sum(r['flags']!='[]' for r in rows),'accounts_with_conflicting_attributes':disagreements,'source_sha256':hashlib.sha256(csv_path.read_bytes()).hexdigest()}
     con.execute('CREATE TABLE metadata (report TEXT)');con.execute('INSERT INTO metadata VALUES (?)',(json.dumps(report),));con.commit();con.close();os.replace(tmp,db_path)
